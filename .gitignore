@@ -1,4 +1,5 @@
 node_modules/
-hyades-img-*.png
+hyades-img-*
+hyades-3d-*
 *.key
 .DS_Store

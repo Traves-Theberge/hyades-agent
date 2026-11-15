@@ -1,0 +1,13 @@
+{
+  "name": "hyades-agent",
+  "description": "Claude Code plugin for the Hyades AI gateway.",
+  "owner": { "name": "Traves Theberge", "url": "https://github.com/Traves-Theberge" },
+  "plugins": [
+    {
+      "name": "hyades",
+      "source": "./",
+      "category": "ai-models",
+      "tags": ["image-generation", "qwen", "clef", "3d"]
+    }
+  ]
+}

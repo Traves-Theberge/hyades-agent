@@ -41,31 +41,26 @@ async function main() {
   const list = await call("tools/list", {});
   results.tools = list.result?.tools?.map((t) => t.name);
 
-  const models = await call("tools/call", { name: "hyades_models", arguments: {} });
+  const models = await call("tools/call", { name: "list_models", arguments: {} });
   results.models = models.result?.content?.[0]?.text?.slice(0, 200);
 
-  const pong = await call("tools/call", { name: "hyades_chat", arguments: { messages: [{ role: "user", content: "Reply with exactly: pong" }], max_tokens: 20 } });
+  const pong = await call("tools/call", { name: "ask_qwen", arguments: { messages: [{ role: "user", content: "Reply with exactly: pong" }] } });
   results.pong = pong.result?.content?.[0]?.text?.slice(0, 300);
 
-  const img = await call("tools/call", { name: "hyades_image_generate", arguments: { prompt: "A single solid red square on white background", size: "512x512", quality_check: true } });
+  const img = await call("tools/call", { name: "generate_image", arguments: { prompt: "A single solid red square on white background", size: "512x512", quality_check: true } });
   results.image = img.result?.content?.[0]?.text?.slice(0, 600);
 
-  if (img.result?.isError) {
-    // fall through: test errors
-  } else {
+  if (!img.result?.isError) {
     const p = JSON.parse(img.result.content[0].text).saved_paths?.[0];
     if (p) {
-      const edit = await call("tools/call", { name: "hyades_image_edit", arguments: { image_path: p, prompt: "Make the square blue, keep everything else the same" } });
+      const edit = await call("tools/call", { name: "edit_image", arguments: { image_path: p, prompt: "Make the square blue, keep everything else the same" } });
       results.edit = edit.result?.content?.[0]?.text?.slice(0, 400);
-      if (edit.result?.isError) {
-        // try clef with the data-url the server built (same format)
-      }
     }
-    const clef = await call("tools/call", { name: "hyades_clef", arguments: { state: {}, images: [], question: "decision", instructions: "Is the statement '2+2=4' true? Answer with a single word." } });
+    const clef = await call("tools/call", { name: "ask_clef", arguments: { question: "decision", instructions: "Is the statement '2+2=4' true?" } });
     results.clef = clef.result?.content?.[0]?.text?.slice(0, 600);
   }
 
-  const bad = await call("tools/call", { name: "hyades_chat", arguments: { model: "qwen3.8-flash-next", messages: [{ role: "user", content: "hi" }], max_tokens: 5 } });
+  const bad = await call("tools/call", { name: "ask_qwen", arguments: { model: "qwen3.8-flash-next", messages: [{ role: "user", content: "hi" }] } });
   results.error403 = bad.result?.isError ? bad.result?.content?.[0]?.text?.slice(0, 200) : "no error (unexpected)";
 
 }
