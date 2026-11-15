@@ -102,3 +102,8 @@ This folder is the source of truth; `~/.claude/...` copies are produced by `inst
 
 If the key was ever pasted in chat: `POST /admin/keys/<key-name>/rotate` (via the gateway admin), then replace
 `~/.omp/agent/hyades.key`. Nothing else to change.
+
+## License
+
+[MIT](LICENSE) © 2026 Traves Theberge. Covers this repo's code and docs. Using the Hyades gateway
+requires your own API key and is governed by the gateway operator's terms.
