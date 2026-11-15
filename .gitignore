@@ -1,4 +1,8 @@
 node_modules/
+# Built binaries: published as GitHub release assets, never committed
+release/
+# Rust build output (normally redirected to ~/.cache/hyades-agent-target by scripts/release.ts)
+rust/target/
 hyades-img-*
 hyades-3d-*
 *.key

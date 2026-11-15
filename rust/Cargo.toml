@@ -1,0 +1,39 @@
+[package]
+name = "hyades-mcp"
+version = "1.2.0"
+edition = "2024"
+rust-version = "1.100"
+description = "Hyades AI gateway MCP server (Rust implementation, benchmarked against the TypeScript one)"
+license = "MIT"
+publish = false
+
+[[bin]]
+name = "hyades-server"
+path = "src/main.rs"
+
+[dependencies]
+rmcp = { version = "3.10.0", features = ["server", "macros", "schemars", "transport-io"] }
+tokio = { version = "1.54.1", features = ["rt", "macros", "io-std", "time"] }
+# HTTP: hyper + rustls with the pure-Rust `ring` provider and bundled Mozilla roots (webpki-roots).
+# No OpenSSL, no aws-lc/cmake and no OS certificate store, so one static build per platform works
+# everywhere and macOS binaries link without Apple's SDK. (reqwest 0.13 always pulls in the OS
+# verifier, which needs Apple's Security framework, so it can't be cross-built for macOS.)
+hyper = { version = "1.12.0", features = ["client", "http1", "http2"] }
+hyper-util = { version = "0.1.21", features = ["client-legacy", "http1", "http2", "tokio"] }
+hyper-rustls = { version = "0.27.10", default-features = false, features = ["ring", "webpki-tokio", "http1", "http2", "tls12"] }
+http-body-util = "0.1.5"
+rustls = { version = "0.23.46", default-features = false, features = ["ring", "std", "tls12"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+base64 = "0.23.1"
+getrandom = "0.4.3"
+# `now` gives UTC time without reading the local time zone (`clock` would link Apple's CoreFoundation).
+chrono = { version = "0.4.45", default-features = false, features = ["now"] }
+url = "2.5.8"
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true
+panic = "abort"

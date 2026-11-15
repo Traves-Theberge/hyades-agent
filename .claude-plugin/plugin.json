@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "hyades",
   "displayName": "Hyades",
-  "version": "1.0.0",
-  "description": "Use the Hyades AI gateway from Claude Code: qwen chat, image generation and editing with quality scores, Clef System One decisions and 3D models.",
+  "version": "1.2.0",
+  "description": "Use the Hyades AI gateway from your coding agent: qwen chat, image generation and editing with quality scores, Clef System One decisions and 3D models.",
   "author": { "name": "Traves Theberge", "url": "https://github.com/Traves-Theberge" },
   "homepage": "https://github.com/Traves-Theberge/hyades-agent",
   "repository": "https://github.com/Traves-Theberge/hyades-agent",
@@ -21,7 +21,7 @@
   "mcpServers": {
     "gateway": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/hyades-server.mjs"],
+      "args": ["${CLAUDE_PLUGIN_ROOT}/launcher/hyades-server.mjs"],
       "env": { "HYADES_PLUGIN_API_KEY": "${user_config.api_key}" }
     }
   }

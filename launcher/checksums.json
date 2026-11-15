@@ -1,0 +1,10 @@
+{
+  "version": "1.2.0",
+  "assets": {
+    "hyades-server-x86_64-unknown-linux-musl": "edb4848488445a340c4d69f49396793de1d5c9ec3728b862d7cf577caf6d2e2f",
+    "hyades-server-aarch64-unknown-linux-musl": "61d016794c4a99824fd8f8b9f059faac53c19c2626cfe7177648f20a1d55ed05",
+    "hyades-server-x86_64-apple-darwin": "51ec40cca15eeefab61b362a277182aee28b31072c53eee227d699c15077bb8c",
+    "hyades-server-aarch64-apple-darwin": "71a438aca24cdcec2e86bd5254b87127d5938f44f969184c4499d0d6541f1e16",
+    "hyades-server-x86_64-pc-windows-gnu.exe": "612826fb4c8d0eecb84eb10183108fd53bfb55ed1343cd490163b61282b8f4a6"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "hyades-plugin",
+  "version": "1.2.0",
+  "private": true,
+  "description": "Hyades AI gateway plugin for Claude Code and omp: Rust MCP server, launcher, skill and agent.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsx scripts/release.ts host",
+    "release": "tsx scripts/release.ts all",
+    "release:publish": "tsx scripts/release.ts publish",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test test/*.test.ts",
+    "bench": "tsx scripts/bench.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "validate": "claude plugin validate --strict .",
+    "check": "npm run typecheck && npm run build && npm test && npm run validate"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "2.4.0",
+    "@types/node": "26.6.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}

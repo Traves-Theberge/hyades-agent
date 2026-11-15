@@ -16,9 +16,9 @@ qwen chat · image generation & editing with quality scores · Clef System One d
 
 | Component | In Claude Code | In omp | What it does |
 |:--|:--|:--|:--|
-| MCP server | `plugin:hyades:gateway` | `hyades:gateway` | Six tools that call the gateway (below) |
+| MCP server | `plugin:hyades:gateway` | `hyades:gateway` | Six tools that call the gateway (below). A native Rust binary |
 | Skill | `hyades:using-hyades-tools` | `using-hyades-tools` | Says which tool fits a request and how to handle each error. Loads automatically when relevant |
-| Agent | `hyades:visual-designer` | `visual-designer` | Produces finished visual assets: logos, icons, banners, brand kits, anything with exact text. Iterates on quality scores and checks its own output |
+| Agent | `hyades:hyades-agent` | `hyades-agent` | The Hyades specialist for work that takes several gateway calls or must end in a checked result: logos, icons, banners and brand kits with exact text, images turned into 3D models, results verified with Clef. Iterates on quality scores and checks its own output |
 
 ### Tools
 
@@ -35,12 +35,26 @@ The agent routes requests itself: ordinary questions and code stay with the agen
 tools are used when a request needs them. Errors come back as structured results (`{error,
 message, retryable}`) the agent can act on. Your API key is never included in output.
 
+## Requirements
+
+- **Node.js 22 or newer** — runs the small launcher that starts the server
+- **A Hyades API key** from the gateway operator. This repo contains no key
+- **One of these platforms:**
+
+| OS | CPU | Server binary |
+|:--|:--|:--|
+| Linux | x64, arm64 | static (musl), runs on any distribution |
+| macOS | Apple Silicon, Intel | |
+| Windows | x64 | |
+
+On first start the launcher downloads the ~4 MB server binary for your platform from this
+repo's GitHub release for the installed version, checks it against the SHA-256 recorded in
+[`launcher/checksums.json`](launcher/checksums.json), and caches it. A binary that doesn't match
+is refused. Later starts are offline.
+
 ## Install in Claude Code
 
-**Requirements:** [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 2.1.275+,
-Node.js 18+, and a Hyades API key from the gateway operator. This repo contains no key.
-
-Inside Claude Code:
+Claude Code 2.1.275 or newer:
 
 ```
 /plugin install hyades --marketplace Traves-Theberge/hyades-agent
@@ -56,7 +70,7 @@ kept in your system's secure credential store, not in a settings file. To change
 <details>
 <summary>Other ways to install</summary>
 
-**Two steps, or Claude Code older than 2.1.275:**
+**Two steps, or an older Claude Code:**
 
 ```
 /plugin marketplace add Traves-Theberge/hyades-agent
@@ -77,8 +91,6 @@ claude plugin install hyades@hyades-agent
 </details>
 
 ## Install in omp
-
-**Requirements:** [omp](https://omp.sh), Node.js 18+, and a Hyades API key.
 
 ```bash
 omp plugin marketplace add Traves-Theberge/hyades-agent
@@ -110,7 +122,8 @@ omp plugin list                             # hyades@hyades-agent (user)
 omp -p "Call the Hyades list_models tool and list the model ids"
 ```
 
-The `-p` commands should print the models your key can use, such as `qwen3.8-27b`.
+The `-p` commands should print the models your key can use, such as `qwen3.8-27b`. The first
+one also downloads the server binary.
 
 ## Use it
 
@@ -127,7 +140,7 @@ Ask in plain language:
 
 Each host asks permission before a tool runs, depending on your approval settings. Generated
 files are saved in the session's working directory. To call the agent yourself: in Claude Code
-mention `@agent-hyades:visual-designer`; in omp ask for the `visual-designer` agent.
+mention `@agent-hyades:hyades-agent`; in omp ask for the `hyades-agent` agent.
 
 ## Configuration
 
@@ -139,6 +152,8 @@ mention `@agent-hyades:visual-designer`; in omp ask for the `visual-designer` ag
 | `HYADES_BASE_URL` | environment | Gateway URL; default `https://hyades.gnostr.cloud/v1` |
 | `HYADES_OUTPUT_DIR` | environment | Where files are saved; default the working directory |
 | `HYADES_3D_POLL_MS` | environment | 3D job poll interval; default 10000 |
+| `HYADES_SERVER_BINARY` | environment | Use this server binary instead of downloading one (offline installs, own builds) |
+| `HYADES_RELEASE_BASE_URL` | environment | Download binaries from a mirror instead of GitHub releases; checksums still apply |
 
 Environment variables must be set where Claude Code or omp is started.
 
@@ -155,19 +170,23 @@ omp plugin uninstall hyades@hyades-agent
 ```
 
 Restart the session after updating (in omp, `/reload-plugins` is enough for the skill, agent and
-MCP server). Uninstalling from Claude Code also removes the key it stored.
+MCP server). A new version downloads its matching binary on its first start. Uninstalling from
+Claude Code also removes the key it stored.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |:--|:--|
-| `no_credential` | Set the key: `/plugin configure hyades@hyades-agent` |
+| `no_credential` | Set the key: `/plugin configure hyades@hyades-agent` (omp: `HYADES_API_KEY` or the key file) |
 | `unauthorized` | The key is wrong, revoked or rotated. Configure a new one. A key set in the plugin overrides `HYADES_API_KEY` and the key file |
-| `forbidden` | Your key can't use that model. Ask Claude to run `list_models` |
+| `forbidden` | Your key can't use that model. Ask the agent to run `list_models` |
 | `rate_limited` | More than 2 requests in flight. Run image and 3D jobs one at a time |
 | `backend_down` | The gateway's upstream is down. Retry later |
 | `bad_args` | A path is wrong, or the file isn't a PNG, JPEG or WebP image |
-| `plugin:hyades:gateway` shows **failed** in `claude mcp list` | `node` isn't on the `PATH` Claude Code sees, or is older than 18 |
+| Server fails to start: `download failed` | No network on first start, or GitHub unreachable. Retry, set `HYADES_RELEASE_BASE_URL` to a mirror, or set `HYADES_SERVER_BINARY` |
+| Server fails to start: `checksum mismatch` | The downloaded binary isn't the released one. Nothing was run or cached; check proxies or the mirror |
+| Server fails to start: `no server binary for <platform>` | Your OS/CPU isn't in the supported list above |
+| `plugin:hyades:gateway` shows **failed** in `claude mcp list` | `node` isn't on the `PATH` the host sees, or is older than 22 |
 | The skill or agent isn't used | Restart the session after installing or updating (omp: `/reload-plugins`); check `claude plugin list` or `omp plugin list` |
 
 ## How it behaves
@@ -175,12 +194,34 @@ MCP server). Uninstalling from Claude Code also removes the key it stored.
 | Behaviour | Why |
 |:--|:--|
 | Files are saved locally before a tool returns | Gateway result URLs expire |
-| Files never overwrite each other | Names carry a timestamp and a random suffix, and are opened create-only |
+| Files never overwrite each other | Names carry a timestamp and a random suffix, and are created exclusively |
 | Only PNG, JPEG and WebP files (max 20 MB) are uploaded, judged by their content | A tricked request can't upload `~/.ssh/id_rsa` or `.env` as an "image" |
 | `429` is retried with backoff, 4 times | The gateway allows 2 requests in flight per key |
 | `ask_qwen` with `json_mode` uses a prompt, not `response_format` | The gateway answers `response_format` with empty content |
 | 3D jobs are submitted once, then polled | Every submission is a new, billable job |
 | A `User-Agent` header is always sent | Cloudflare blocks requests without one (`error code: 1010`) |
+| HTTPS is verified against bundled Mozilla root certificates, not the OS store | One static binary per platform, cross-built without Apple's SDK. Networks that intercept TLS with their own certificate authority aren't supported |
+
+## Why Rust
+
+The server was written in both TypeScript (MCP SDK v2 on Node) and Rust (`rmcp`), both on the
+current MCP protocol (`2026-07-28`) with identical tools, and both passed the same test suite.
+They were benchmarked side by side against the same fake gateway, through the official MCP client
+over stdio, with nothing else running. Medians of two clean runs on Linux x64 (WSL2):
+
+| Measure | TypeScript | Rust | Rust via launcher (as shipped) |
+|:--|--:|--:|--:|
+| Start: spawn → first `tools/list` (ms) | 578 | 30 | 345 |
+| Tool call, p50 (ms) | 2.1 | 1.1 | 0.9 |
+| Calls per second, 20 in flight | 996 | 2,850 | 2,690 |
+| 15 MB image upload, p50 (ms) | 312 | 153 | 164 |
+| Peak memory (MB) | 420 | 67 | 127 |
+| Shipped size | 841 KB bundle | 3.2–4.3 MB per platform | same |
+
+Rust was selected: it wins on every runtime measure even with the Node launcher in front, and
+uses about a third of the memory. Real tool calls are dominated by the gateway itself (image
+generation takes 25–60 s), so the practical gains are memory and start-up. `npm run bench`
+reproduces the Rust half of the table.
 
 ## Development
 
@@ -189,38 +230,54 @@ hyades-agent/
 ├── .claude-plugin/
 │   ├── plugin.json               # plugin manifest: MCP server, API key setting
 │   └── marketplace.json          # lets this repo be added as a marketplace
-├── agents/visual-designer.md     # hyades:visual-designer
+├── agents/hyades-agent.md        # hyades:hyades-agent
 ├── skills/using-hyades-tools/
 │   ├── SKILL.md                  # routing table and error handling
 │   └── tools-reference.md        # arguments, quality fields, error codes
-├── mcp/
-│   ├── hyades-server.mjs         # the MCP server (zero dependencies)
-│   ├── smoke.mjs                 # live end-to-end check (makes billable calls)
-│   └── test/offline.test.mjs     # tests against a fake gateway
+├── launcher/
+│   ├── hyades-server.mjs         # picks, downloads, verifies and starts the binary
+│   └── checksums.json            # SHA-256 of each released binary, for this version
+├── rust/                         # the MCP server (rmcp, tokio, hyper + rustls)
+├── test/                         # offline tests: fake gateway + fake release server
+├── scripts/
+│   ├── release.ts                # build one or all platforms; publish a release
+│   ├── bench.ts                  # start-up, latency, throughput, upload, memory
+│   └── smoke.ts                  # live check against the real gateway (costs credits)
 └── assets/                       # banner and plugin icon
 ```
 
+**Toolchain:** Node.js 22+, Rust 1.100+, [Zig](https://ziglang.org) 0.17+ and
+[cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) 0.24+ (Zig is the C
+compiler/linker, which lets one Linux machine build every platform). Then `npm install`.
+
 ```bash
-claude --plugin-dir .                     # run Claude Code with your working copy
-claude plugin validate --strict .         # check the manifests
-node --test mcp/test/*.test.mjs           # offline tests: no key, no network, no cost
-node mcp/smoke.mjs                        # live check; uses your key and costs credits
+npm run build            # build this machine's binary into release/ (the launcher prefers it)
+npm test                 # 9 offline tests through the launcher: no key, no network, no cost
+npm run check            # typecheck + build + test + plugin validation
+npm run bench            # benchmark the binary, direct and through the launcher
+npm run smoke            # live check against the real gateway; uses your key and costs credits
+claude --plugin-dir .    # run Claude Code with your working copy
 ```
 
-Bump `version` in `.claude-plugin/plugin.json` for each release: installed copies stay on the
-version they have until it changes.
+**Releasing a version:**
+
+1. Bump `version` in `package.json`, `.claude-plugin/plugin.json` and `rust/Cargo.toml` (the
+   release script refuses to run if they differ). Installed copies stay on their version until
+   it changes.
+2. `npm run release` builds all five platforms and writes `launcher/checksums.json`.
+3. Commit and push, then `npm run release:publish` creates GitHub release `v<version>` with the
+   five binaries. The launcher downloads from that release.
 
 ### Verified (2026-11-15)
 
 | Check | Result |
 |:--|:--|
-| Offline tests | 5/5: 3D polls once-submitted jobs and saves the model; non-images refused before upload; unique file names |
-| Live: chat, JSON mode, image generate, edit, Clef, `403` | all as expected |
-| Live: 3D | **not verified** — the gateway's 3D backend was down (`503`) |
-| Claude Code: plugin install; key unset → key-file fallback; key set → used and overrides the file | as expected |
-| omp: plugin install, server starts, live `list_models`; agent receives the skill and all six tools | as expected |
-| Routing: 22 requests, headless, Hyades calls blocked | Claude Code 22/22, omp 22/22 to the expected tool, agent or no tool (the previous text missed 3 of 10 hard requests) |
-| `visual-designer` end to end in Claude Code | made this README's banner: 2 generations, Clef self-checks, exact composited text |
+| Offline tests (Rust, through the launcher) | 9/9: tool list, 3D polling, upload refusal, unique files, key precedence, first-run download + cache, checksum refusal |
+| Live: models, chat, image generate, edit, Clef, `403` through the Rust binary over real HTTPS | all as expected |
+| Live: 3D | **not verified**: the gateway's 3D backend was down (`503`) |
+| Cross-builds | all five platforms build; Apple Silicon binary carries the required ad-hoc signature. macOS and Windows binaries were not run on real hardware |
+| Plugin: Claude Code install, key prompt and fallbacks; omp install, skill and agent | as expected |
+| Routing: 24 requests, headless, Hyades calls blocked, Rust server | omp 24/24; Claude Code 23/24. The miss: "use the model that won't refuse" — Claude Code writes it itself because it wouldn't refuse. Naming the model ("ask qwen's refusal-off model …") routes correctly 3/3 |
 
 ## License
 

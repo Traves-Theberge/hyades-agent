@@ -21,7 +21,7 @@ Pick the first row that matches what the request asks for.
 | asks for uncensored output or a model that won't refuse | `ask_qwen` with `model: "qwen3.8-27b-refusal-off"` |
 | explicitly asks for qwen, Hyades, or a second opinion from another model | `ask_qwen` (`qwen3.8-27b`); add `json_mode: true` when it wants structured data |
 | is an ordinary question, coding or writing task that matches no other row | answer it yourself; no Hyades tool |
-| wants a visual deliverable with words in it (logo, wordmark, banner, hero), an app icon, several related assets, or polish to a quality bar | delegate to the `visual-designer` agent (`hyades:visual-designer` in Claude Code) |
+| needs more than one Hyades call or a finished, checked result: a logo, wordmark, banner or hero with words in it, an app icon, several related assets, polish to a quality bar, an image then turned into a 3D model, or a result verified with Clef | delegate to `hyades-agent` (`hyades:hyades-agent` in Claude Code) |
 | wants any other picture, sketch, drawing or illustration | `generate_image` with `quality_check: true`; never draw it yourself as SVG or code |
 | wants an existing local image changed | `edit_image` |
 | wants a 3D model, mesh or `.glb`, from a prompt or a picture | `generate_3d_model`; say it can take minutes |
@@ -45,7 +45,8 @@ If two rows fit and the choice changes the result (image or 3D model), ask one q
 | `no_credential`, `unauthorized` | Stop. Tell the user to set their key: in Claude Code `/plugin configure hyades@hyades-agent`; elsewhere `HYADES_API_KEY` or `~/.omp/agent/hyades.key`. |
 | `forbidden` | The key can't use that model: call `list_models` and pick a listed one. |
 | `rate_limited`, `backend_down` | Retry once after a short wait, then report the outage. |
-| `bad_args` | Fix the arguments: wrong path, not an image, or missing prompt. |
+| `bad_args`, or plain text `failed to deserialize parameters` | Fix the arguments: wrong path, not an image, missing field or wrong type. |
+| `network` | Retry once; if it persists, report that the gateway can't be reached. |
 | `3d_failed`, `timeout`, `unexpected_response` | Report the message; don't retry in a loop. |
 
 Arguments, quality-score fields and every error code are in `tools-reference.md`, next to this file.

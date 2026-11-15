@@ -74,7 +74,9 @@ Unverified: on 2026-11-15 the gateway's 3D backend was down (`backend_down`,
 
 ## Error codes
 
-Every tool returns errors as `{ error, message, retryable }`.
+Every tool returns errors as `{ error, message, retryable }`. One exception: arguments of the wrong
+shape (a missing required field, a wrong type) are rejected before the tool runs, as a plain-text
+error result starting `failed to deserialize parameters:`. Fix the arguments and call again.
 
 | `error` | Cause | `retryable` |
 |:--|:--|:--|
@@ -83,12 +85,13 @@ Every tool returns errors as `{ error, message, retryable }`.
 | `forbidden` | key not allowed to use that model or path (HTTP 403) | no |
 | `rate_limited` | more than 2 requests in flight (HTTP 429); already retried 4× with backoff | yes |
 | `backend_down` | gateway's upstream unavailable (HTTP 503) | yes |
-| `bad_args` | missing argument, path not found, not a regular file, not a PNG/JPEG/WebP image, or over 20 MB | no |
+| `bad_args` | missing prompt or image, path not found, not a regular file, not a PNG/JPEG/WebP image, or over 20 MB | no |
 | `3d_failed` | gateway reported the 3D job failed | no |
 | `timeout` | 3D job still running after `timeoutMs` | no |
 | `unexpected_response` | 3D job finished without a model URL | no |
 | `http_<status>` | any other HTTP failure | no |
-| `internal` | bug in the server; the message has the stack | no |
+| `network` | the gateway or a result URL couldn't be reached, or the request timed out | no |
+| `internal` | bug in the server | no |
 
 ## Limits
 
