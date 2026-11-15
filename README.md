@@ -217,8 +217,10 @@ version they have until it changes.
 | Offline tests | 5/5: 3D polls once-submitted jobs and saves the model; non-images refused before upload; unique file names |
 | Live: chat, JSON mode, image generate, edit, Clef, `403` | all as expected |
 | Live: 3D | **not verified** — the gateway's 3D backend was down (`503`) |
-| Plugin install, key unset → key-file fallback; key set → used and overrides the file | both as expected |
-| Routing: 22 requests through headless Claude Code, plugin installed | 22/22 routed to the expected tool, agent or no tool (the previous text missed 3) |
+| Claude Code: plugin install; key unset → key-file fallback; key set → used and overrides the file | as expected |
+| omp: plugin install, server starts, live `list_models`; agent receives the skill and all six tools | as expected |
+| Routing: 22 requests, headless, Hyades calls blocked | Claude Code 22/22, omp 22/22 to the expected tool, agent or no tool (the previous text missed 3 of 10 hard requests) |
+| `visual-designer` end to end in Claude Code | made this README's banner: 2 generations, Clef self-checks, exact composited text |
 
 ## License
 
