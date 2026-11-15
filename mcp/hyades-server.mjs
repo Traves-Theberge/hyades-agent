@@ -112,6 +112,7 @@ async function retry429(fn, retries = 4) {
 
 async function tModels() {
   const res = await retry429(() => fetch(BASE + "/models", { headers: { Authorization: `Bearer ${getKey()}`, "User-Agent": UA } }));
+  if (res.status === 401) throw new HyadesError("unauthorized", "401: key rejected (missing or invalid bearer)");
   if (!res.ok) throw new HyadesError(`http_${res.status}`, `HTTP ${res.status} on /models: ${(await res.text()).slice(0, 200)}`);
   const j = await res.json();
   return { models: (j.data ?? []).map((m) => m.id) };
