@@ -100,5 +100,5 @@ This folder is the source of truth; `~/.claude/...` copies are produced by `inst
 
 ## Key rotation
 
-If the key was ever pasted in chat: `POST /admin/keys/travis/rotate` (via XenonFun), then replace
+If the key was ever pasted in chat: `POST /admin/keys/<key-name>/rotate` (via the gateway admin), then replace
 `~/.omp/agent/hyades.key`. Nothing else to change.

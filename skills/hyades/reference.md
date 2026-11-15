@@ -83,7 +83,7 @@ Body: `{prompt}` or `{image_url}`; optional `remove_background`, `seed`, `steps`
 
 ## Key rotation
 
-Key was pasted in chat → rotate if it matters: `POST /admin/keys/travis/rotate`
+Key was pasted in chat → rotate if it matters: `POST /admin/keys/<key-name>/rotate`
 (ask XenonFun). After rotation, replace `~/.omp/agent/hyades.key`; nothing else to change.
 
 ## Concurrency / rate

@@ -2,7 +2,7 @@
 import { spawn } from "node:child_process";
 
 const KEY = process.argv[2]; // optional: inject HYADES_API_KEY
-const server = spawn("node", ["/home/Traves/Desktop/hyades-agent/mcp/hyades-server.mjs"], {
+const server = spawn("node", [new URL("./hyades-server.mjs", import.meta.url).pathname], {
   env: { ...process.env, ...(KEY ? { HYADES_API_KEY: KEY } : {}) },
   stdio: ["pipe", "pipe", "pipe"],
 });

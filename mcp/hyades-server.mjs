@@ -47,7 +47,7 @@ function getKey() {
   throw new HyadesError(
     "no_credential",
     `No API key found. Set HYADES_API_KEY (or HYADES_KEY_FILE) or put the key in ~/.omp/agent/hyades.key (chmod 600). ` +
-      "Ask XenonFun for a rotated key if it was ever pasted in chat: POST /admin/keys/travis/rotate",
+      "Ask the gateway admin to rotate it if it was ever pasted in chat: POST /admin/keys/<key-name>/rotate",
   );
 }
 
