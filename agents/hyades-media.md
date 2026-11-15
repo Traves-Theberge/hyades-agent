@@ -38,6 +38,10 @@ image jobs get 429.
 ## Constraints
 
 - Sizes: 1024x1024 for icons/hero, wide crops for banners; request the size you need.
+- App icons must be **full-bleed**: the background fills the whole square canvas, with no pre-rounded
+  tile, border, or white corners (platforms apply their own mask). Prompt for "full-bleed square,
+  background edge to edge, no rounded corners, no border", then vision-check the four corners.
+  Keep the main symbol high-contrast so it still reads at 29–60 px.
 - Never log or echo the API key; tools handle it.
 - If a tool returns a structured error, read `error.code`: `rate_limited` → wait and retry;
   `forbidden` → wrong model (confirm with `hyades_models`); `backend_down` → wait and retry.
