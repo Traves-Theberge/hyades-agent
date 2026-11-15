@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🌀 hyades-agent
+<img src="assets/banner.png" alt="hyades-agent — Hyades AI as Claude Code tools" width="100%">
+
+# hyades-agent
 
 **Claude Code integration for the [Hyades](https://hyades.gnostr.cloud) AI gateway**
 
