@@ -1,6 +1,6 @@
 {
   "name": "hyades-agent",
-  "description": "Claude Code plugin for the Hyades AI gateway.",
+  "description": "Plugin for the Hyades AI gateway, for Claude Code and omp.",
   "owner": { "name": "Traves Theberge", "url": "https://github.com/Traves-Theberge" },
   "plugins": [
     {

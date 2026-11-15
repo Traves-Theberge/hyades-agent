@@ -3,7 +3,7 @@ name = "hyades-mcp"
 version = "1.2.0"
 edition = "2024"
 rust-version = "1.100"
-description = "Hyades AI gateway MCP server (Rust implementation, benchmarked against the TypeScript one)"
+description = "MCP server for the Hyades AI gateway: qwen chat, image generation and editing, Clef decisions and 3D models"
 license = "MIT"
 publish = false
 

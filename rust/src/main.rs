@@ -1,6 +1,6 @@
-//! Hyades MCP server, Rust implementation: exposes the hyades.gnostr.cloud gateway as six tools
-//! over stdio, built on rmcp (protocol 2026-07-28). Mirrors `src/server.ts` tool for tool, so the
-//! same test suite and benchmarks run against both.
+//! Hyades MCP server: exposes the hyades.gnostr.cloud gateway as six tools over stdio, built on
+//! rmcp (protocol 2026-07-28). Started by `launcher/hyades-server.mjs`; tested and benchmarked
+//! through the official MCP client (`test/`, `scripts/bench.ts`).
 //! Tool failures come back as results with isError=true and a JSON body { error, message,
 //! retryable }, so the calling agent can read the code and react; they never crash the server.
 mod files;

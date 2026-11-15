@@ -1,8 +1,8 @@
 // Live end-to-end check against the real gateway. Uses your API key (plugin env, HYADES_API_KEY
 // or ~/.omp/agent/hyades.key) and costs credits: one chat call, one image generation, one edit
 // and one Clef decision. Files are saved in the current directory.
-//   npm run smoke                      — TypeScript bundle
-//   HYADES_SERVER=<binary> npm run smoke — Rust binary
+//   npm run smoke                         — through the launcher (release/<binary>, or a download)
+//   HYADES_SERVER=<binary> npm run smoke  — a server binary directly
 import { connect, SERVER, serverTransport } from "../test/harness.ts";
 
 const env = Object.fromEntries(Object.entries(process.env).filter((e): e is [string, string] => e[1] !== undefined));

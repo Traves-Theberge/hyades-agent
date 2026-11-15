@@ -1,5 +1,4 @@
 //! HTTP client for the Hyades gateway: key lookup, requests, error mapping and 429 retries.
-//! Mirrors `src/gateway.ts`; both implementations must behave identically.
 use std::{env, fs, path::PathBuf, sync::LazyLock, time::Duration};
 
 use http_body_util::{BodyExt, Full};

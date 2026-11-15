@@ -88,7 +88,7 @@ error result starting `failed to deserialize parameters:`. Fix the arguments and
 | `bad_args` | missing prompt or image, path not found, not a regular file, not a PNG/JPEG/WebP image, or over 20 MB | no |
 | `3d_failed` | gateway reported the 3D job failed | no |
 | `timeout` | 3D job still running after `timeoutMs` | no |
-| `unexpected_response` | 3D job finished without a model URL | no |
+| `unexpected_response` | 3D job finished without a model URL, or the gateway sent a reply that isn't valid JSON | no |
 | `http_<status>` | any other HTTP failure | no |
 | `network` | the gateway or a result URL couldn't be reached, or the request timed out | no |
 | `internal` | bug in the server | no |

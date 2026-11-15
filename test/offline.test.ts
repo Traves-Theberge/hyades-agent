@@ -1,7 +1,7 @@
 // Offline tests against a fake local gateway, driven by the official MCP client over stdio. No
 // network, no API key, no cost. Runs against whichever server HYADES_SERVER names (see harness.ts):
-//   npm test          — TypeScript bundle (run `npm run build` first; `npm run check` does both)
-//   npm run test:rust — Rust binary (run `npm run build:rust` first)
+//   npm test                              — the launcher, which runs release/<binary> (`npm run build` first)
+//   HYADES_SERVER=<binary> npm test       — a server binary directly
 import { test, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync } from "node:fs";

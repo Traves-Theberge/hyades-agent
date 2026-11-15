@@ -207,7 +207,8 @@ Claude Code also removes the key it stored.
 The server was written in both TypeScript (MCP SDK v2 on Node) and Rust (`rmcp`), both on the
 current MCP protocol (`2026-07-28`) with identical tools, and both passed the same test suite.
 They were benchmarked side by side against the same fake gateway, through the official MCP client
-over stdio, with nothing else running. Medians of two clean runs on Linux x64 (WSL2):
+over stdio, with nothing else running. Each figure is the mean of two clean runs' medians, on
+Linux x64 (WSL2):
 
 | Measure | TypeScript | Rust | Rust via launcher (as shipped) |
 |:--|--:|--:|--:|
@@ -247,8 +248,12 @@ hyades-agent/
 ```
 
 **Toolchain:** Node.js 22+, Rust 1.100+, [Zig](https://ziglang.org) 0.17+ and
-[cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) 0.24+ (Zig is the C
-compiler/linker, which lets one Linux machine build every platform). Then `npm install`.
+[cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) 0.24+, with the
+`x86_64-unknown-linux-musl`, `aarch64-unknown-linux-musl`, `x86_64-apple-darwin`,
+`aarch64-apple-darwin` and `x86_64-pc-windows-gnu` targets added through `rustup`. Zig is the C
+compiler/linker, which lets one Linux machine build every platform. If the machine has no system
+C compiler, Rust's build scripts also need a `cc` on `PATH`; a two-line wrapper that runs
+`zig cc "$@"` is enough. Then `npm install`.
 
 ```bash
 npm run build            # build this machine's binary into release/ (the launcher prefers it)
@@ -268,6 +273,11 @@ claude --plugin-dir .    # run Claude Code with your working copy
 3. Commit and push, then `npm run release:publish` creates GitHub release `v<version>` with the
    five binaries. The launcher downloads from that release.
 
+`launcher/checksums.json` describes the binaries built from the release's tagged commit. Any
+later source change, even a comment (Rust embeds line numbers in panic messages), produces
+different bytes, so a local `npm run build` won't match the published checksums. That's
+expected: the launcher only verifies downloads, and the next release writes new checksums.
+
 ### Verified (2026-11-15)
 
 | Check | Result |
@@ -276,6 +286,7 @@ claude --plugin-dir .    # run Claude Code with your working copy
 | Live: models, chat, image generate, edit, Clef, `403` through the Rust binary over real HTTPS | all as expected |
 | Live: 3D | **not verified**: the gateway's 3D backend was down (`503`) |
 | Cross-builds | all five platforms build; Apple Silicon binary carries the required ad-hoc signature. macOS and Windows binaries were not run on real hardware |
+| Release v1.2.0 | all five published assets match `launcher/checksums.json`. A fresh launcher with an empty cache downloaded the Linux x64 binary from GitHub, verified it and served all six tools (first start 1.3 s, cached start 0.4 s) |
 | Plugin: Claude Code install, key prompt and fallbacks; omp install, skill and agent | as expected |
 | Routing: 24 requests, headless, Hyades calls blocked, Rust server | omp 24/24; Claude Code 23/24. The miss: "use the model that won't refuse" — Claude Code writes it itself because it wouldn't refuse. Naming the model ("ask qwen's refusal-off model …") routes correctly 3/3 |
 

@@ -1,4 +1,4 @@
-//! Local files: which ones may be uploaded, and how results are saved. Mirrors `src/files.ts`.
+//! Local files: which ones may be uploaded, and how results are saved.
 use std::{env, fs, io::Write, path::PathBuf};
 
 use base64::prelude::*;
